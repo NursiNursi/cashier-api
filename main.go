@@ -21,7 +21,7 @@ type Config struct {
 	DBConn 	string `mapstructure:"DB_CONN"`
 }
 
-var products = []models.Product{
+var transactions = []models.Product{
 	{ID: 1, Name: "Laptop", Price: 1000, Stock: 10},
 	{ID: 2, Name: "Smartphone", Price: 500, Stock: 20},
 	{ID: 3, Name: "Tablet", Price: 300, Stock: 15},
@@ -56,6 +56,12 @@ func main() {
 	http.HandleFunc("/api/products/", productHandler.HandleProductByID)
 	http.HandleFunc("/api/products", productHandler.HandleProducts)
 	http.HandleFunc("/api/product", productHandler.HandleProduct)
+
+	transactionRepo := repositories.NewTransactionRepository(db)
+	transactionService := services.NewTransactionService(transactionRepo)
+	transactionHandler := handlers.NewTransactionHandler(transactionService)
+
+	http.HandleFunc("/api/checkout", transactionHandler.HandleCheckout)
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
